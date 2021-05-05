@@ -1,10 +1,10 @@
 // Copyright (C) 2016-2021 The Neo Project.
-// 
-// The neo-vm is free software distributed under the MIT software license, 
+//
+// The neo-vm is free software distributed under the MIT software license,
 // see the accompanying file LICENSE in the main directory of the
-// project or http://www.opensource.org/licenses/mit-license.php 
+// project or http://www.opensource.org/licenses/mit-license.php
 // for more details.
-// 
+//
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
@@ -427,7 +427,14 @@ namespace Neo.VM
                         if (context_pop.EvaluationStack != stack_eval)
                         {
                             if (context_pop.RVCount >= 0 && context_pop.EvaluationStack.Count != context_pop.RVCount)
-                                throw new InvalidOperationException("RVCount doesn't match with EvaluationStack");
+                            {
+                                int count = context_pop.EvaluationStack.Count;
+                                for (int i = 0; i < count; i++)
+                                {
+                                    StackItem x = Peek(i);
+                                }
+                                throw new InvalidOperationException($"RVCount doesn't match with EvaluationStack. RVCount: {context_pop.RVCount.ToString()}. EvalStack: {context_pop.EvaluationStack.Count.ToString()}");
+                            }
                             context_pop.EvaluationStack.CopyTo(stack_eval);
                         }
                         if (InvocationStack.Count == 0)
@@ -1307,6 +1314,17 @@ namespace Neo.VM
                     {
                         var x = Pop();
                         Push(x.ConvertTo((StackItemType)instruction.TokenU8));
+                        break;
+                    }
+                case OpCode.PRINT:
+                    {
+                        int count = CurrentContext.EvaluationStack.Count;
+                        Console.WriteLine($"Eval stack count: {count}");
+                        for (int i = 0; i < count; i++)
+                        {
+                            StackItem x = Peek(i);
+                            Console.WriteLine($"Index: {i}. StackItem: {x.ToSJson().ToString()}\n");
+                        }
                         break;
                     }
 
