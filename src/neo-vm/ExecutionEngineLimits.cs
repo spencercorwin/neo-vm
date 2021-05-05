@@ -6,7 +6,7 @@ namespace Neo.VM
     /// <summary>
     /// Represents the restrictions on the VM.
     /// </summary>
-    public sealed record ExecutionEngineLimits
+    public sealed class ExecutionEngineLimits
     {
         /// <summary>
         /// The default strategy.
