@@ -1,4 +1,5 @@
 using Neo.VM.Types;
+using InternalComparer = Neo.VM.Collections.ReferenceEqualityComparer;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,8 +16,8 @@ namespace Neo.VM
             public Dictionary<CompoundType, int>? ObjectReferences;
         }
 
-        private readonly Dictionary<CompoundType, Entry> counter = new(ReferenceEqualityComparer.Instance);
-        private readonly HashSet<CompoundType> zero_referred = new(ReferenceEqualityComparer.Instance);
+        private readonly Dictionary<CompoundType, Entry> counter = new Dictionary<CompoundType, Entry>(InternalComparer.Instance);
+        private readonly HashSet<CompoundType> zero_referred = new HashSet<CompoundType>(InternalComparer.Instance);
         private int references_count = 0;
 
         /// <summary>
@@ -36,7 +37,7 @@ namespace Neo.VM
             int count;
             if (tracing.ObjectReferences is null)
             {
-                tracing.ObjectReferences = new Dictionary<CompoundType, int>(ReferenceEqualityComparer.Instance);
+                tracing.ObjectReferences = new Dictionary<CompoundType, int>(InternalComparer.Instance);
                 count = 1;
             }
             else
@@ -59,9 +60,14 @@ namespace Neo.VM
             references_count++;
             if (referred is not CompoundType compound) return;
             if (counter.TryGetValue(compound, out Entry? entry))
+            {
+
                 entry.StackReferences++;
+            }
             else
+            {
                 counter.Add(compound, new Entry { StackReferences = 1 });
+            }
             zero_referred.Remove(compound);
         }
 
@@ -74,11 +80,11 @@ namespace Neo.VM
         {
             while (zero_referred.Count > 0)
             {
-                HashSet<CompoundType> toBeDestroyed = new(ReferenceEqualityComparer.Instance);
+                HashSet<CompoundType> toBeDestroyed = new HashSet<CompoundType>(InternalComparer.Instance);
                 foreach (CompoundType compound in zero_referred)
                 {
-                    HashSet<CompoundType> toBeDestroyedInLoop = new(ReferenceEqualityComparer.Instance);
-                    Queue<CompoundType> toBeChecked = new();
+                    HashSet<CompoundType> toBeDestroyedInLoop = new HashSet<CompoundType>(InternalComparer.Instance);
+                    Queue<CompoundType> toBeChecked = new Queue<CompoundType>();
                     toBeChecked.Enqueue(compound);
                     while (toBeChecked.TryDequeue(out var c))
                     {
@@ -104,6 +110,7 @@ namespace Neo.VM
                     foreach (CompoundType subitem in compound.SubItems.OfType<CompoundType>())
                     {
                         if (toBeDestroyed.Contains(subitem)) continue;
+                        // if (!counter.ContainsKey(subitem)) continue;
                         Entry entry = counter[subitem];
                         entry.ObjectReferences!.Remove(compound);
                         if (entry.StackReferences == 0)

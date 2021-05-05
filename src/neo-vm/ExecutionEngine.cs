@@ -417,7 +417,14 @@ namespace Neo.VM
                         if (context_pop.EvaluationStack != stack_eval)
                         {
                             if (context_pop.RVCount >= 0 && context_pop.EvaluationStack.Count != context_pop.RVCount)
-                                throw new InvalidOperationException("RVCount doesn't match with EvaluationStack");
+                            {
+                                int count = context_pop.EvaluationStack.Count;
+                                for (int i = 0; i < count; i++)
+                                {
+                                    StackItem x = Peek(i);
+                                }
+                                throw new InvalidOperationException($"RVCount doesn't match with EvaluationStack. RVCount: {context_pop.RVCount.ToString()}. EvalStack: {context_pop.EvaluationStack.Count.ToString()}");
+                            }
                             context_pop.EvaluationStack.CopyTo(stack_eval);
                         }
                         if (InvocationStack.Count == 0)
@@ -1299,6 +1306,17 @@ namespace Neo.VM
                         Push(x.ConvertTo((StackItemType)instruction.TokenU8));
                         break;
                     }
+                case OpCode.PRINT:
+                    {
+                        int count = CurrentContext.EvaluationStack.Count;
+                        Console.WriteLine($"Eval stack count: {count}");
+                        for (int i = 0; i < count; i++)
+                        {
+                            StackItem x = Peek(i);
+                            Console.WriteLine($"Index: {i}. StackItem: {x.ToSJson().ToString()}\n");
+                        }
+                        break;
+                    }
 
                 default: throw new InvalidOperationException($"Opcode {instruction.OpCode} is undefined.");
             }
@@ -1383,6 +1401,7 @@ namespace Neo.VM
                 }
                 catch (Exception e)
                 {
+                    Console.WriteLine(e.ToString());
                     OnFault(e);
                 }
             }
