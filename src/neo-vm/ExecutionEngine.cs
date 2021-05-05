@@ -141,6 +141,7 @@ namespace Neo.VM
         private void ExecuteInstruction()
         {
             Instruction instruction = CurrentContext.CurrentInstruction;
+            Console.WriteLine($"{instruction.OpCode.ToString()}");
             switch (instruction.OpCode)
             {
                 //Push
@@ -417,7 +418,15 @@ namespace Neo.VM
                         if (context_pop.EvaluationStack != stack_eval)
                         {
                             if (context_pop.RVCount >= 0 && context_pop.EvaluationStack.Count != context_pop.RVCount)
-                                throw new InvalidOperationException("RVCount doesn't match with EvaluationStack");
+                            {
+                                int count = context_pop.EvaluationStack.Count;
+                                for (int i = 0; i < count; i++)
+                                {
+                                    StackItem x = Peek(i);
+                                    Console.WriteLine($"Index: {i}. StackItem: {x.ToSJson().ToString()}\n");
+                                }
+                                throw new InvalidOperationException($"RVCount doesn't match with EvaluationStack. RVCount: {context_pop.RVCount.ToString()}. EvalStack: {context_pop.EvaluationStack.Count.ToString()}");
+                            }
                             context_pop.EvaluationStack.CopyTo(stack_eval);
                         }
                         if (InvocationStack.Count == 0)
@@ -1043,15 +1052,19 @@ namespace Neo.VM
                 case OpCode.SIZE:
                     {
                         var x = Pop();
+                        // Console.WriteLine($"Getting size of stackitem: {x.ToSJson()}");
                         switch (x)
                         {
                             case CompoundType compound:
+                                // Console.WriteLine($"compound: {compound.Count.ToString()}");
                                 Push(compound.Count);
                                 break;
                             case PrimitiveType primitive:
+                                // Console.WriteLine($"primitive: {primitive.Size.ToString()}");
                                 Push(primitive.Size);
                                 break;
                             case Buffer buffer:
+                                // Console.WriteLine($"buffer: {buffer.Size.ToString()}");
                                 Push(buffer.Size);
                                 break;
                             default:
@@ -1061,6 +1074,7 @@ namespace Neo.VM
                     }
                 case OpCode.HASKEY:
                     {
+                        Console.WriteLine($"Checking key: {Peek().ToSJson()} for value: {Peek(1).ToSJson()}");
                         PrimitiveType key = Pop<PrimitiveType>();
                         var x = Pop();
                         switch (x)
@@ -1286,6 +1300,18 @@ namespace Neo.VM
                         Push(x.ConvertTo((StackItemType)instruction.TokenU8));
                         break;
                     }
+                case OpCode.PRINT:
+                    {
+                        int count = CurrentContext.EvaluationStack.Count;
+                        Console.WriteLine($"Eval stack count: {count}");
+                        for (int i = 0; i < count; i++)
+                        {
+                            StackItem x = Peek(i);
+                            // Console.WriteLine($"type: {x.Type.ToString()}");
+                            Console.WriteLine($"Index: {i}. StackItem: {x.ToSJson().ToString()}\n");
+                        }
+                        break;
+                    }
 
                 default: throw new InvalidOperationException($"Opcode {instruction.OpCode} is undefined.");
             }
@@ -1370,6 +1396,7 @@ namespace Neo.VM
                 }
                 catch (Exception e)
                 {
+                    Console.WriteLine(e.ToString());
                     OnFault(e);
                 }
             }

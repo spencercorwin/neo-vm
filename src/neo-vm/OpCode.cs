@@ -850,6 +850,7 @@ namespace Neo.VM
         /// </summary>
         [OperandSize(Size = 1)]
         CONVERT = 0xDB,
+        PRINT = 0xff,
 
         #endregion
     }
