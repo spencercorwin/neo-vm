@@ -1382,6 +1382,7 @@ namespace Neo.VM
                 }
                 catch (Exception e)
                 {
+                    Console.WriteLine(e.ToString());
                     OnFault(e);
                 }
             }
