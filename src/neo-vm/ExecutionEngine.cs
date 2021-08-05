@@ -141,7 +141,7 @@ namespace Neo.VM
         private void ExecuteInstruction()
         {
             Instruction instruction = CurrentContext!.CurrentInstruction;
-            Console.WriteLine($"{instruction.OpCode.ToString()}");
+            // Console.WriteLine($"{instruction.OpCode.ToString()}");
             switch (instruction.OpCode)
             {
                 //Push
@@ -423,7 +423,7 @@ namespace Neo.VM
                                 for (int i = 0; i < count; i++)
                                 {
                                     StackItem x = Peek(i);
-                                    Console.WriteLine($"Index: {i}. StackItem: {x.ToSJson().ToString()}\n");
+                                    // Console.WriteLine($"Index: {i}. StackItem: {x.ToSJson().ToString()}\n");
                                 }
                                 throw new InvalidOperationException($"RVCount doesn't match with EvaluationStack. RVCount: {context_pop.RVCount.ToString()}. EvalStack: {context_pop.EvaluationStack.Count.ToString()}");
                             }
@@ -857,6 +857,7 @@ namespace Neo.VM
                         var exponent = (int)Pop().GetInteger();
                         Limits.AssertShift(exponent);
                         var value = Pop().GetInteger();
+                        // Console.WriteLine($"Value: {value.ToString()} Exponent: {exponent.ToString()}");
                         Push(BigInteger.Pow(value, exponent));
                         break;
                     }
@@ -1087,7 +1088,7 @@ namespace Neo.VM
                     }
                 case OpCode.HASKEY:
                     {
-                        Console.WriteLine($"Checking key: {Peek().ToSJson()} for value: {Peek(1).ToSJson()}");
+                        // Console.WriteLine($"Checking key: {Peek().ToSJson()} for value: {Peek(1).ToSJson()}");
                         PrimitiveType key = Pop<PrimitiveType>();
                         var x = Pop();
                         switch (x)
