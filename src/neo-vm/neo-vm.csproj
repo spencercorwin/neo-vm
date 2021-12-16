@@ -5,6 +5,7 @@
     <AssemblyTitle>Neo.VM</AssemblyTitle>
     <Description>Neo.VM - NEO•ONE Fork</Description>
     <VersionPrefix>3.0.1</VersionPrefix>
+    <VersionSuffix>audited</VersionSuffix>
     <Authors>The Neo Project</Authors>
     <TargetFrameworks>netcoreapp3.0</TargetFrameworks>
     <LangVersion>9.0</LangVersion>
